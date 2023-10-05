@@ -4,6 +4,10 @@ const { botcmds } = require('../channelconfig.json');
 const noblox = require('noblox.js')
 const { cookie } = require('../config.json');
 const ranksjsn = require('../ranks.json');
+const testschema =  require('../Schemas/test')
+
+const delay = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
+
 module.exports = {
 	cooldown: 10,
 	data: new SlashCommandBuilder()
@@ -20,6 +24,13 @@ module.exports = {
 		
 
 	 async execute(interaction) {
+
+		interaction.reply("This command is disabled for now."); return
+
+		const tisdadata = await testschema.findOne({DiscordID: interaction.user.id})
+
+		if (!tisdadata) interaction.reply("No database entry found. Ask admins to force update and provide your username.")
+
 		const row = new ActionRowBuilder()
 		.addComponents(
 		accept = new ButtonBuilder()
@@ -50,22 +61,50 @@ module.exports = {
 			await interaction.reply("You need to verify first.");
 			return;
 		  }
-		  const siz = interaction.member.nickname.split('');
-		if (!siz[2] == robloxUser) return interaction.reply("Please provide your username.");
+		  //const siz = interaction.member.nickname.split('');
+		  //if (!siz) interaction.reply("No username found.")
+		//if (!siz[2] == robloxUser) return interaction.reply("Please provide your username.");
 			 await interaction.reply({ content: "Successfully updated.", ephemeral: true });
 			 verifyalldizzys(interaction.member.user,interaction.client,robloxUser,interaction.options.getString("roblox_username"))
 			 const rn = await noblox.getRankNameInGroup(5161570,robloxUser)
 			 const value = ranksjsn[rn];
 			 interaction.member.roles.add(value)
+			 await delay(500);
 			 //await i.member.setNickname(`${interaction.options.getString("roblox_username")} | ${robloxUser}`)
-			interaction.member.roles.add(big1)
-			interaction.member.roles.add(big2)
-			interaction.member.roles.add(big3)
-			interaction.member.roles.add(div1)
-			interaction.member.roles.add(div2)
-			interaction.member.roles.add(div3)
-			interaction.member.roles.add(div4)
-			interaction.member.roles.add(alreadygot)
+			 interaction.member.roles.add(big1)
+			 await delay(500);
+			 interaction.member.roles.add(big2)
+			 await delay(500);
+			 interaction.member.roles.add(big3)
+			 await delay(500);
+			 interaction.member.roles.add(div1)
+			 await delay(500);
+			 interaction.member.roles.add(div2)
+			 await delay(500);
+			 interaction.member.roles.add(div3)
+			 await delay(500);
+			 interaction.member.roles.add(div4)
+			 await delay(500);
+			 interaction.member.roles.add(alreadygot)
+
+			tisdadata.collection.findOneAndUpdate(
+
+				{DiscordID: Number(interaction.user.id)},
+
+				
+					{$set:{Data: {			
+					RobloxUsername: `${interaction.options.getString("roblox_username")}`,
+					IsAPLSVerified: true,
+					RankInGroup: `${rn}`,
+					RobloxInfo: {
+						
+						RobloxStuff: ""
+					
+					}
+
+					}}}
+	 		)
+			
 	  }
 	};
 	

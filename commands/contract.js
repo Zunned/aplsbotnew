@@ -1,7 +1,11 @@
-const { channel } = require('diagnostics_channel');
-const { SlashCommandBuilder, Client, BaseInteraction, CommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionsBitField} = require('discord.js');
+//const { channel } = require('diagnostics_channel');
+const { SlashCommandBuilder, Client, BaseInteraction, CommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionFlagsBits} = require('discord.js');
+const { Permissions } = require('discord.js');
 const { message } = require('noblox.js');
 const { botcmds, contractlogs } = require('../channelconfig.json');
+const delay = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
+const { v4: uuidv4 } = require('uuid');
+
 
 module.exports = {
 	cooldown: 10,
@@ -20,7 +24,7 @@ module.exports = {
      */
 
 	async execute(interaction) {
-		if (!interaction.member.roles.cache.has("1092712701177897064")) {
+		if (!interaction.member.roles.cache.has("1149478114397786192")) {
 			await interaction.reply("You dont have the required permissions to do this command.");
 			return;
 		  }
@@ -43,12 +47,65 @@ module.exports = {
 	const role = interaction.options.getString("role");
 	const team = interaction.options.getString("team");
 	const contractor = interaction.user
-	//const AddIDS = contractor.id+signee.id
-	const ContractID = contractor.id+signee.id/interaction.id
+	function generateContractID(contractorID, signeeID) {
+		const timestamp = Date.now();
+		const random = Math.floor(Math.random() * 1000); // You can adjust this range as needed
+		return `${contractorID}${signeeID}${timestamp}${random}`;
+	  }
+	const ContractID = uuidv4()
 	const channel = interaction.guild.channels.cache.get(botcmds);
 	const channel2 = interaction.guild.channels.cache.get(contractlogs);
 
 	const { EmbedBuilder } = require('discord.js');
+
+	async function sendContractInformation(ContractID, contractor, signee, team, position, role) {
+		const contractChannel = interaction.guild.channels.cache.get("1101887113571618957"); // Replace with the actual channel ID where you want to send the contract info
+		
+		if (!contractChannel) {
+		  console.error("Contract channel not found.");
+		  return;
+		}
+	  
+		const exampleEmbed = new EmbedBuilder()
+		  .setTitle("Team Contract")
+		  .setDescription("Contract ID: " + ContractID)
+		  .addFields(
+			{
+			  name: "Signee:",
+			  value: `<@${signee.id}>`,
+			  inline: true,
+			},
+			{
+			  name: "Contractor",
+			  value: `<@${contractor.id}>`,
+			  inline: true,
+			},
+			{
+			  name: "Team:",
+			  value: `${team}`,
+			  inline: true,
+			},
+			{
+			  name: "Position:",
+			  value: `${position}`,
+			  inline: true,
+			},
+			{
+			  name: "Role:",
+			  value: `${role}`,
+			  inline: true,
+			}
+		  )
+		  .setColor("#00b0f4")
+		  .setFooter({
+			text: "American Professional League Soccer",
+			iconURL: "https://i.ibb.co/Gpsnq2c/apls-logo.png",
+		  })
+		  .setTimestamp();
+	  
+		await contractChannel.send({ embeds: [exampleEmbed] });
+	  }
+	  
 
 	const exampleEmbed = new EmbedBuilder()
 	.setTitle("Team Contract")
@@ -92,7 +149,29 @@ module.exports = {
 	})
 	.setTimestamp();
 
-	const hehe = await channel.send({content: `:page_facing_up: | <@${contractor.id}>`,embeds: [exampleEmbed], components: [row]});
+	//console.log(`Creating channel: ${signee.username}'s-${team} Contract`);
+	const newchan = await interaction.guild.channels.create({
+		name: `${(await interaction.guild.members.fetch(signee)).nickname}'s ${team} contract`,
+		type: ChannelType.GuildText,
+		parent: '1092712702234873869',
+		permissionOverwrites: [
+			{
+			  id: interaction.guild.roles.everyone.id,
+			  deny: [PermissionFlagsBits.ViewChannel],
+		   },
+		   {
+			id: contractor.id,
+			allow: [PermissionFlagsBits.ViewChannel],
+		 },
+		 {
+			id: signee.id,
+			allow: [PermissionFlagsBits.ViewChannel],
+		 }
+		 ],
+	  });
+
+	const xd = interaction.guild.channels.cache.get((await newchan).id);
+	const hehe = await xd.send({content: `:page_facing_up: | <@${contractor.id}>, <@${signee.id}>`,embeds: [exampleEmbed], components: [row]});
 
 	await interaction.reply({
 		content: '``Sent!``',
@@ -110,6 +189,17 @@ module.exports = {
 			 const new2 = exampleEmbed.setColor("#00f444");
 			 hehe.edit({content: `:white_check_mark: | <@${contractor.id}>, the player has accepted the contract.`,embeds: [new2], components: [row]});
 
+			 sendContractInformation(ContractID, contractor, signee, team, position, role);
+
+			 await delay(5000)
+			 await newchan.delete()
+			 .then(deletedChannel => {
+			   console.log(`Deleted channel: ${deletedChannel.name}`);
+			 })
+			 .catch(error => {
+			   console.error(`Error deleting channel: ${error}`);
+			 });
+
 
 
 			
@@ -120,8 +210,38 @@ module.exports = {
 			 row.components[1].setDisabled(true)
 			 const new3 = exampleEmbed.setColor("#f40036");
 			 hehe.edit({content: `:x: | <@${contractor.id}>, the player has denied the contract.`,embeds: [new3], components: [row]});
-		 };
+			 await delay(5000)
+			 await newchan.delete()
+			 .then(deletedChannel => {
+			   console.log(`Deleted channel: ${deletedChannel.name}`);
+			 })
+			 .catch(error => {
+			   console.error(`Error deleting channel: ${error}`);
+			 });
+		 }
+
 	 });
+
+	 collector.on('end', async (collected, reason) => {
+
+		if (reason === 'time') {
+			if (collected.size > 0) return
+			console.log('Collector ended:', collected.size, 'interactions collected');
+			row.components[0].setDisabled(true)
+			row.components[1].setDisabled(true)
+			const new3 = exampleEmbed.setColor("#f40036");
+			hehe.edit({content: `:x: | <@${contractor.id}>, the contract has expired.`,embeds: [new3], components: [row]});
+			await delay(5000)
+			await newchan.delete()
+			.then(deletedChannel => {
+			  console.log(`Deleted channel: ${deletedChannel.name}`);
+			})
+			.catch(error => {
+			  console.error(`Error deleting channel: ${error}`);
+			});
+		}
+
+	});
 
 	},	
 };

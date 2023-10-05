@@ -5,12 +5,16 @@ const noblox = require('noblox.js')
 const { cookie } = require('../config.json');
 const ranksjsn = require('../ranks.json');
 const { Staff } = require('../perms.json');
+const testschema =  require('../Schemas/test')
+const delay = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
+
 module.exports = {
 	cooldown: 0,
 	data: new SlashCommandBuilder()
 		.setName('forceupdate')
 		.setDescription(`Update someones roles for them`)
-		.addUserOption(option => option.setName('user').setDescription('user').setRequired(true)),
+		.addUserOption(option => option.setName('user').setDescription('user').setRequired(true))
+		.addStringOption(option => option.setName('roblox_username').setDescription('roblox username.').setRequired(true)),
 
 	/**
      * 
@@ -21,6 +25,11 @@ module.exports = {
 		
 
 	 async execute(interaction) {
+
+		interaction.reply("This command is disabled for now."); return
+
+		const tisdadata = await testschema.findOne({DiscordID: interaction.options.getUser("user").id})
+
 		if (!interaction.member.roles.cache.has(Staff)) {
 			await interaction.reply("You dont have the required permissions to do this command.");
 			return;
@@ -36,13 +45,14 @@ module.exports = {
 
 		noblox.setCookie(cookie)
 		const userx = interaction.options.getMember("user");
-		const siz = userx.nickname.split(' ');
+		//const siz = userx.nickname.split(' ');
+		//if (!siz) return interaction.reply("No username found")
 		//const restrictedRoleID = '1092712701177897061';
 		const nickName = interaction.member.nickname;
 		const avatar = interaction.user.avatarURL();
 		const channel = interaction.guild.channels.cache.get(botcmds);
-
-		const robloxUser = await noblox.getIdFromUsername(siz[0])
+		
+		const robloxUser = await noblox.getIdFromUsername(interaction.options.getString("roblox_username"))
 		//console.log(`${userx} and ${siz[1]}`)
 		if (!robloxUser) return interaction.reply("That user does not exist.")
 		const request = await noblox.getRankInGroup(5161570,robloxUser)
@@ -51,7 +61,7 @@ module.exports = {
 
 
 			 await interaction.reply({ content: "Successfully updated.", ephemeral: true });
-			 verifyalldizzys(userx.user,interaction.client,robloxUser,siz[0])
+			 verifyalldizzys(userx.user,interaction.client,robloxUser,interaction.options.getString("roblox_username"))
 			 if (interaction.guild && userx) {
 				const memberRoles = userx.roles.cache;
 			
@@ -61,14 +71,57 @@ module.exports = {
 			  
 					if (role && memberRoles.has(roleID)) {
 					  console.log(`${userx.nickname} has the role ${roleName}`);
-					  interaction.member.roles.remove(roleID)
+					  userx.roles.remove(roleID)
+					  await delay(500);
 				  }
 				}
 			  }
 			 const rn = await noblox.getRankNameInGroup(5161570,robloxUser)
 			 const value = ranksjsn[rn];
-			 interaction.member.roles.add(value)
+			 await delay(500);
+			 userx.roles.add(value)
 			 //await i.member.setNickname(`${interaction.options.getString("roblox_username")} | ${robloxUser}`)
+
+			 if (!tisdadata){
+
+				testschema.create({
+					DiscordID: interaction.options.getUser("user").id,
+					Data: {
+						
+						"RobloxUsername": `${interaction.options.getString("roblox_username")}`,
+						"IsAPLSVerified": true,
+						"RankInGroup": `${rn}`,
+					
+						"RobloxInfo": {
+						
+							"RobloxStuff": ""
+						
+						}
+		
+					}
+		
+				  });
+				  return;
+
+			}
+
+			tisdadata.collection.findOneAndUpdate(
+
+				{DiscordID: Number(interaction.options.getUser("user").id)},
+
+				
+					{$set:{Data: {			
+					RobloxUsername: `${interaction.options.getString("roblox_username")}`,
+					IsAPLSVerified: true,
+					RankInGroup: `${rn}`,
+					RobloxInfo: {
+						
+						RobloxStuff: ""
+					
+					}
+
+					}}}
+	 		)
 	  }
 	};
 	

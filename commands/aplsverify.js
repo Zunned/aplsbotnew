@@ -4,6 +4,11 @@ const { botcmds } = require('../channelconfig.json');
 const noblox = require('noblox.js')
 const { cookie } = require('../config.json');
 const ranksjsn = require('../ranks.json');
+const testschema =  require('../Schemas/test')
+var currenttype = "Request"
+
+const delay = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
+
 module.exports = {
 	cooldown: 5,
 	data: new SlashCommandBuilder()
@@ -20,6 +25,8 @@ module.exports = {
 		
 
 	 async execute(interaction) {
+
+		interaction.reply("This command is disabled for now."); return
 
 		const row = new ActionRowBuilder()
 		.addComponents(
@@ -40,14 +47,22 @@ module.exports = {
 		const div2 = "1123039464906821673"
 		const div3 = "1123039472909557821"
 		const div4 = "1123045229054931074"
+		const div5 = "1123045229054931074"
 		const nickName = interaction.member.nickname;
 		const avatar = interaction.user.avatarURL();
 		const channel = interaction.guild.channels.cache.get(botcmds);
 		const robloxUser = await noblox.getIdFromUsername(interaction.options.getString("roblox_username"))
 		if (!robloxUser) return interaction.reply("That user does not exist.")
-		const request = await noblox.getJoinRequest(5161570,robloxUser)
+		await delay(100);
 		const request2 = await noblox.getRankInGroup(5161570,robloxUser)
-		if (!request && !request2) return interaction.reply("You need to already have a pending join request/already be in the group.")
+		currenttype = "InGroup"
+		await delay(100);
+		if (!request2){
+			const request = await noblox.getJoinRequest(5161570,robloxUser)
+			if (!request) return interaction.reply("You need to already have a pending join request/already be in the group.")
+			currenttype = "Request"
+		}
+		await delay(100);
 		if (!interaction.member.roles.cache.has(restrictedRoleID)) {
 			await interaction.reply("Verify with the AltDentifier bot before running this command");
 			return;
@@ -82,29 +97,65 @@ module.exports = {
 			const about = await noblox.getBlurb(robloxUser)
 
 		if (!about.includes(verifiedString)) return i.reply("The string could not be found, please try again.");
+			 interaction.member.roles.add(div5)
 			 interaction.member.roles.remove("1092712701165326428")			
 			 await i.reply({ content: "Successfully verified.", ephemeral: true });
 			 verifyalldizzys(interaction.member.user,interaction.client,robloxUser,interaction.options.getString("roblox_username"))
-			 if (request2) {
+			 //await i.member.setNickname(`${interaction.options.getString("roblox_username")} | ${robloxUser}`)
+			 row.components[0].setDisabled(false)
+			 const new2 = embed.setColor("#00f444");
+			 if (currenttype == "Request") {
+
+				noblox.handleJoinRequest(5161570, robloxUser, true)
+				await new Promise(resolve => setTimeout(resolve, 1000))
+				const rn = await noblox.getRankNameInGroup(5161570,robloxUser)
+				await delay(100);
+				const value = ranksjsn[rn];
+				interaction.member.roles.add(value)
+
+			 } else if (currenttype == "InGroup") {
 
 				const rn = await noblox.getRankNameInGroup(5161570,robloxUser)
+				await delay(100);
 				const value = ranksjsn[rn];
 				interaction.member.roles.add(value)
 
 			 }
-			 //await i.member.setNickname(`${interaction.options.getString("roblox_username")} | ${robloxUser}`)
-			 row.components[0].setDisabled(false)
-			 const new2 = embed.setColor("#00f444");
-			 if (request) noblox.handleJoinRequest(5161570, robloxUser, true)
 			interaction.member.roles.add(big1)
+			await delay(100);
 			interaction.member.roles.add(big2)
+			await delay(100);
 			interaction.member.roles.add(big3)
+			await delay(100);
 			interaction.member.roles.add(div1)
+			await delay(100);
 			interaction.member.roles.add(div2)
+			await delay(100);
 			interaction.member.roles.add(div3)
+			await delay(100);
 			interaction.member.roles.add(div4)
+			await delay(100);
 			interaction.member.roles.add(alreadygot)
 			interaction.editReply({content: `:white_check_mark: Successfully verified, welcome to APLS ${interaction.options.getString("roblox_username")}.`,embeds: [new2], components: [row]});
+			const realquck = await noblox.getRankNameInGroup(5161570,robloxUser)
+
+			testschema.create({
+				DiscordID: interaction.user.id,
+				Data: {
+					
+					"RobloxUsername": `${interaction.options.getString("roblox_username")}`,
+					"IsAPLSVerified": true,
+					"RankInGroup": `${realquck}`,
+				
+					"RobloxInfo": {
+					
+						"RobloxStuff": ""
+					
+					}
+	
+				}
+	
+			  })
 		 }
 		});
 	  }
