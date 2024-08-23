@@ -4,8 +4,8 @@ const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
 const { cookie } = require('./config.json');
 const rbxbot = require('noblox.js')
-const { mongourl } = require('./config.json');
-const { default: mongoose } = require('mongoose');
+//const { mongourl } = require('./config.json');
+//const { default: mongoose } = require('mongoose');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 rbxbot.setCookie(cookie)
@@ -27,15 +27,15 @@ for (const file of commandFiles) {
 }
 
 client.once(Events.ClientReady, c => {
-	if (!mongourl) return;
-
-	mongoose.connect(mongourl || "",{
-
-		keepAlive:true,
-		useNewURLParser: true,
-		useUnifiedTopology: true
-
-	})
+//	if (!mongourl) return;
+//
+//	mongoose.connect(mongourl || "",{
+//
+//		keepAlive:true,
+//		useNewURLParser: true,
+//		useUnifiedTopology: true
+//
+//	})
 	console.log(`Ready! Logged in as ${c.user.tag}`);
 });
 

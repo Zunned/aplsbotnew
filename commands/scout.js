@@ -16,7 +16,7 @@ module.exports = {
      */
 
 	async execute(interaction) {
-		if (!interaction.member.roles.cache.has("1149478114397786192")) {
+		if (!interaction.member.roles.cache.has() && !interaction.member.roles.cache.has()) {
 			await interaction.reply("You dont have the required permissions to do this command.");
 			return;
 		  }

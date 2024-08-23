@@ -46,7 +46,7 @@ module.exports = {
 			text: `${nickName}`,
 			iconURL: `${avatar}` ,
 		  })
-		.setAuthor({ name: `Announcment`, iconURL: "https://cdn.discordapp.com/attachments/757414601972252762/1145075946316116058/APLSSERVER.png"})
+		.setAuthor({ name: `Announcment`, iconURL: "https://i.ibb.co/yQQqfzT/lool.png"})
 		.setDescription(txt)
 		.setImage(img)
 		.setTimestamp()

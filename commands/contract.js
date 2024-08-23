@@ -2,9 +2,11 @@
 const { SlashCommandBuilder, Client, BaseInteraction, CommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionFlagsBits} = require('discord.js');
 const { Permissions } = require('discord.js');
 const { message } = require('noblox.js');
-const { botcmds, contractlogs } = require('../channelconfig.json');
+const { contractlogs } = require('../channelconfig.json');
 const delay = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 const { v4: uuidv4 } = require('uuid');
+const { Manager } = require('../perms.json');
+const { Assistant } = require('../perms.json');
 
 
 module.exports = {
@@ -13,7 +15,7 @@ module.exports = {
 		.setName('contract')
 		.setDescription('sign players to your team')
 		.addUserOption(option => option.setName('signee').setDescription('Player').setRequired(true))
-		.addStringOption(option => option.setName('team').setDescription('Team').setRequired(true))
+		.addRoleOption(option => option.setName('team').setDescription('Team').setRequired(true))
 		.addStringOption(option => option.setName('position').setDescription('Position').setRequired(true))
 		.addStringOption(option => option.setName('role').setDescription('Role').setRequired(true)),
 
@@ -24,7 +26,7 @@ module.exports = {
      */
 
 	async execute(interaction) {
-		if (!interaction.member.roles.cache.has("1149478114397786192")) {
+		if (!interaction.member.roles.cache.has(Manager) && !interaction.member.roles.cache.has(Assistant)) {
 			await interaction.reply("You dont have the required permissions to do this command.");
 			return;
 		  }
@@ -45,7 +47,7 @@ module.exports = {
 	const signee = interaction.options.getUser("signee");
 	const position = interaction.options.getString("position");
 	const role = interaction.options.getString("role");
-	const team = interaction.options.getString("team");
+	const team = interaction.options.getRole("team");
 	const contractor = interaction.user
 	function generateContractID(contractorID, signeeID) {
 		const timestamp = Date.now();
@@ -53,13 +55,14 @@ module.exports = {
 		return `${contractorID}${signeeID}${timestamp}${random}`;
 	  }
 	const ContractID = uuidv4()
-	const channel = interaction.guild.channels.cache.get(botcmds);
+	//const channel = interaction.guild.channels.cache.get(botcmds);
 	const channel2 = interaction.guild.channels.cache.get(contractlogs);
+	//const contractshit = interaction.guild.channels.cache.get("1276220015477133333")
 
 	const { EmbedBuilder } = require('discord.js');
 
 	async function sendContractInformation(ContractID, contractor, signee, team, position, role) {
-		const contractChannel = interaction.guild.channels.cache.get("1101887113571618957"); // Replace with the actual channel ID where you want to send the contract info
+		const contractChannel = interaction.guild.channels.cache.get("1274459246129319956"); // Replace with the actual channel ID where you want to send the contract info
 		
 		if (!contractChannel) {
 		  console.error("Contract channel not found.");
@@ -82,7 +85,7 @@ module.exports = {
 			},
 			{
 			  name: "Team:",
-			  value: `${team}`,
+			  value: `<@&${team.id}>`,
 			  inline: true,
 			},
 			{
@@ -98,8 +101,8 @@ module.exports = {
 		  )
 		  .setColor("#00b0f4")
 		  .setFooter({
-			text: "American Professional League Soccer",
-			iconURL: "https://i.ibb.co/Gpsnq2c/apls-logo.png",
+			text: "Professional Roblox Football Federation",
+			iconURL: "https://i.ibb.co/yQQqfzT/lool.png",
 		  })
 		  .setTimestamp();
 	  
@@ -144,16 +147,17 @@ module.exports = {
 	)
 	.setColor("#00b0f4")
 	.setFooter({
-	  text: "American Professional League Soccer",
-	  iconURL: "https://i.ibb.co/Gpsnq2c/apls-logo.png",
+	  text: "Professional Roblox Football Federation",
+	  iconURL: "https://i.ibb.co/yQQqfzT/lool.png",
 	})
 	.setTimestamp();
 
 	//console.log(`Creating channel: ${signee.username}'s-${team} Contract`);
-	const newchan = await interaction.guild.channels.create({
+
+	const botcmds = interaction.guild.channels.create({
 		name: `${(await interaction.guild.members.fetch(signee)).nickname}'s ${team} contract`,
 		type: ChannelType.GuildText,
-		parent: '1092712702234873869',
+		parent: '1276220015477133333',
 		permissionOverwrites: [
 			{
 			  id: interaction.guild.roles.everyone.id,
@@ -170,7 +174,7 @@ module.exports = {
 		 ],
 	  });
 
-	const xd = interaction.guild.channels.cache.get((await newchan).id);
+	const xd = interaction.guild.channels.cache.get((await botcmds).id);
 	const hehe = await xd.send({content: `:page_facing_up: | <@${contractor.id}>, <@${signee.id}>`,embeds: [exampleEmbed], components: [row]});
 
 	await interaction.reply({
@@ -192,7 +196,7 @@ module.exports = {
 			 sendContractInformation(ContractID, contractor, signee, team, position, role);
 
 			 await delay(5000)
-			 await newchan.delete()
+			 await xd.delete()
 			 .then(deletedChannel => {
 			   console.log(`Deleted channel: ${deletedChannel.name}`);
 			 })
@@ -211,7 +215,7 @@ module.exports = {
 			 const new3 = exampleEmbed.setColor("#f40036");
 			 hehe.edit({content: `:x: | <@${contractor.id}>, the player has denied the contract.`,embeds: [new3], components: [row]});
 			 await delay(5000)
-			 await newchan.delete()
+			 await xd.delete()
 			 .then(deletedChannel => {
 			   console.log(`Deleted channel: ${deletedChannel.name}`);
 			 })
@@ -232,7 +236,7 @@ module.exports = {
 			const new3 = exampleEmbed.setColor("#f40036");
 			hehe.edit({content: `:x: | <@${contractor.id}>, the contract has expired.`,embeds: [new3], components: [row]});
 			await delay(5000)
-			await newchan.delete()
+			await xd.delete()
 			.then(deletedChannel => {
 			  console.log(`Deleted channel: ${deletedChannel.name}`);
 			})

@@ -37,7 +37,7 @@ module.exports = {
 		.setDescription(txt)
 		.setTimestamp()
 
-	channel.send({content: "<@&1092712701165326433>",embeds: [exampleEmbed]});
+	channel.send({content: "<@&1274469219626385531>",embeds: [exampleEmbed]});
 
 	await interaction.reply({
 		content: '``Sent!``',
