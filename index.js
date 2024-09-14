@@ -8,7 +8,7 @@ const rbxbot = require('noblox.js')
 //const { default: mongoose } = require('mongoose');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-rbxbot.setCookie(cookie)
+//rbxbot.setCookie(cookie)
 client.cooldowns = new Collection();
 client.commands = new Collection();
 
