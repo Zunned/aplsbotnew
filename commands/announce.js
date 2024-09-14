@@ -22,7 +22,7 @@ module.exports = {
 	async execute(interaction) {
 
 		if (!interaction.member.roles.cache.has(HR)) {
-			await interaction.reply({content: "You dont have the required permissions to do this command.", ephemeral: true,});
+			await interaction.reply("You dont have the required permissions to do this command.");
 			return;
 		  }
 

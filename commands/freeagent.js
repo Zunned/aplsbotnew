@@ -16,7 +16,7 @@ module.exports = {
      */
 
 	async execute(interaction) {
-	const nickName = interaction.member.displayName
+	const nickName = interaction.member.nickname
 	const avatar = interaction.user.avatarURL()
 	const channel = interaction.guild.channels.cache.get(freeagency);
 
@@ -33,7 +33,7 @@ module.exports = {
 		.setDescription(txt)
 		.setTimestamp()
 
-	channel.send({content: "<@1092712701165326433>",embeds: [exampleEmbed]});
+	channel.send({ embeds: [exampleEmbed]});
 
 	await interaction.reply({
 		content: '``Sent!``',

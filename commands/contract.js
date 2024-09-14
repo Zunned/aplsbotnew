@@ -30,18 +30,6 @@ module.exports = {
 			await interaction.reply("You dont have the required permissions to do this command.");
 			return;
 		  }
-
-		  const clubs = ["1123345147959189524", "1123345149011968000", "1123345149381050400", "1123345150748393502", "1123345152388366376", "1123345153185284116", "1123345154003185664", "1123345155395698829", "1123345156259721267", "1123345160617599020", "1123345161406124063", "1123345162765086761", "1154949367694889030", "1154949368533766245", "1154949369146118145", "1154949377681543208"]
-
-		  if (!clubs.includes(interaction.options.getRole('club').id)) {
-
-			await interaction.reply({
-			  content: '``Club not found!``',
-			  ephemeral: true,
-			})
-			return;
-		}
-
 	const row = new ActionRowBuilder()
 	.addComponents(
 		accept = new ButtonBuilder()
@@ -57,7 +45,6 @@ module.exports = {
 	 );
 	
 	const signee = interaction.options.getUser("signee");
-	const testu = interaction.options.getMember("signee");
 	const position = interaction.options.getString("position");
 	const role = interaction.options.getString("role");
 	const team = interaction.options.getRole("team");
@@ -83,7 +70,7 @@ module.exports = {
 		}
 	  
 		const exampleEmbed = new EmbedBuilder()
-		  .setTitle(`${accpeteddeniedorexpired} Team Contract`)
+		  .setTitle("Team Contract")
 		  .setDescription("Contract ID: " + ContractID)
 		  .addFields(
 			{
@@ -144,7 +131,7 @@ module.exports = {
 	  },
 	  {
 		name: "Team:",
-		value: `<@&${team.id}>`,
+		value: `${team}`,
 		inline: true
 	  },
 	  {
@@ -190,9 +177,13 @@ module.exports = {
 	const xd = interaction.guild.channels.cache.get((await botcmds).id);
 	const hehe = await xd.send({content: `:page_facing_up: | <@${contractor.id}>, <@${signee.id}>`,embeds: [exampleEmbed], components: [row]});
 
+	await interaction.reply({
+		content: '``Sent!``',
+		ephemeral: true
+	 })
 	 const filter = i => [i.customId === 'acceptbutton' || i.customId === 'denybutton']  && i.user.id === signee.id 
 
-	 const collector = hehe.createMessageComponentCollector({ filter, time: 259200000 });
+	 const collector = hehe.createMessageComponentCollector({ filter, time: 15000 });
 	 
 	 collector.on('collect', async i => {
 		 if (i.customId === 'acceptbutton') {
@@ -202,17 +193,7 @@ module.exports = {
 			 const new2 = exampleEmbed.setColor("#00f444");
 			 hehe.edit({content: `:white_check_mark: | <@${contractor.id}>, the player has accepted the contract.`,embeds: [new2], components: [row]});
 
-			 if (!testu.roles.cache.has(role.id)) {
-
-				testu.roles.remove("1123347698788081854")
-
-			 }
-
-			 await delay(100);
-			 
-			 testu.roles.add(interaction.options.getRole('club').id)
-
-			 sendContractInformation(ContractID, contractor, signee, team, position, role, "Accepted");
+			 sendContractInformation(ContractID, contractor, signee, team, position, role);
 
 			 await delay(5000)
 			 await xd.delete()
@@ -233,7 +214,6 @@ module.exports = {
 			 row.components[1].setDisabled(true)
 			 const new3 = exampleEmbed.setColor("#f40036");
 			 hehe.edit({content: `:x: | <@${contractor.id}>, the player has denied the contract.`,embeds: [new3], components: [row]});
-			 sendContractInformation(ContractID, contractor, signee, team, position, role, "Denied");
 			 await delay(5000)
 			 await xd.delete()
 			 .then(deletedChannel => {
@@ -255,7 +235,6 @@ module.exports = {
 			row.components[1].setDisabled(true)
 			const new3 = exampleEmbed.setColor("#f40036");
 			hehe.edit({content: `:x: | <@${contractor.id}>, the contract has expired.`,embeds: [new3], components: [row]});
-			sendContractInformation(ContractID, contractor, signee, team, position, role, "Expired");
 			await delay(5000)
 			await xd.delete()
 			.then(deletedChannel => {
