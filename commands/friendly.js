@@ -16,12 +16,12 @@ module.exports = {
      */
 
 	async execute(interaction) {
-		if (!interaction.member.roles.cache.has("1092712701177897064")) {
-			await interaction.reply("You dont have the required permissions to do this command.");
+		if (!interaction.member.roles.cache.has("1149478114397786192") && !interaction.member.roles.cache.has("1149478116633362464") && !interaction.member.roles.cache.has("1149478118336254094")) {
+			await interaction.reply({content: "You dont have the required permissions to do this command.", ephemeral: true,});
 			return;
 		  }
 	const nickName = interaction.member.nickname
-	const avatar = interaction.user.avatarURL()
+	const avatar = interaction.user.avatarURL
 	const channel = interaction.guild.channels.cache.get(friendlies);
 
 

@@ -37,6 +37,8 @@ client.once(Events.ClientReady, c => {
 //
 //	})
 	console.log(`Ready! Logged in as ${c.user.tag}`);
+
+	client.guilds.cache.get("1092712701165326426").members.fetch()
 });
 
 client.on(Events.InteractionCreate, async interaction => {

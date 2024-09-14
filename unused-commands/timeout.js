@@ -19,13 +19,14 @@ module.exports = {
 	async execute(interaction) {
 
 		if (!interaction.member.roles.cache.has(Mod)) {
-			await interaction.reply("You dont have the required permissions to do this command.");
+			await interaction.reply({content: "You dont have the required permissions to do this command.", ephemeral: true,});
 			return;
 		  }
 
 		  if (interaction.options.getMember("user").roles.cache.has(Mod)) {
 
-			await interaction.reply("Cant do this command, this user is Moderator+")
+			await interaction.reply({content: "Cant do this command, this user is Moderator+", ephemeral: true,})
+			return;
 
 		  }		  
 

@@ -7,7 +7,9 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('suggestion')
 		.setDescription('Suggest a feature to add/remove from gameplay')
-		.addStringOption(option => option.setName('text').setDescription('text').setRequired(true)),
+		.addStringOption(option => option.setName('title').setDescription('title').setRequired(true))
+		.addStringOption(option => option.setName('content').setDescription('text').setRequired(true)),
+		//.addAttachmentOption(option => option.setName('attachment').setDescription('add an attachment if needed').setRequired(false)),
 
 	/**
      * 
@@ -24,16 +26,21 @@ module.exports = {
 
 	const { EmbedBuilder } = require('discord.js');
 	
-	const txt = interaction.options.getString("text");
+	const cnt = interaction.options.getString("content");
+	const ttl = interaction.options.getString("title");
+	const img = interaction.options.getAttachment("attachment");
 
-	const exampleEmbed = new EmbedBuilder()
-		.setColor(0x0099FF)
-		.setTitle('Suggestion')
-		.setAuthor({ name: `${nickName}`, iconURL: `${avatar}`})
-		.setDescription(txt)
-		.setTimestamp()
+	const forum = interaction.guild.channels.cache.get('1145132822806401085');
 
-	channel.send({content: "<@&1092712701165326433>",embeds: [exampleEmbed]});
+	forum.threads
+	.create({
+	name: `${ttl} : ${interaction.member.displayName}` ,
+	message: {
+	content: cnt,
+	},
+	reason: 'Suggestion/Feedback',
+	})
+	.catch(console.error);
 
 	await interaction.reply({
 		content: '``Sent!``',
